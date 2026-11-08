@@ -1,0 +1,11 @@
+name = "business-agent-os-mcp"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [
+  { pattern = "mcp.danielbilsborough.com", custom_domain = true }
+]
+
+# Observability stays off: the server must not log tool inputs.
+[observability]
+enabled = false
