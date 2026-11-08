@@ -61,7 +61,7 @@ export function buildServer(): McpServer {
     {
       title: "Daily routine",
       description:
-        "How the memory works, the daily habit, the full text of the /pickup, /wrap, /status, /review, /ingest, /lint and /new-client command files, and how to use them with Codex or Grok.",
+        "How the memory works, the daily habit, the full text of the /pickup, /wrap, /status, /review, /trace, /ingest, /lint and /new-client command files, and how to use them with Codex or Grok.",
       inputSchema: {},
       annotations: { title: "Daily routine", ...READ_ONLY },
     },

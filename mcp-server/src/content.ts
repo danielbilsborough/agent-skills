@@ -11,17 +11,23 @@ const FOOTER = `\n\nBusiness Agent OS by Daniel Bilsborough: ${LINKS.site}`;
 
 export const COMMANDS = {
   pickup: `---
-description: Load a client or project and brief me
-argument-hint: <slug>
+description: Load a client, project or topic and brief me
+argument-hint: <slug or topic>
 ---
-Slug: $ARGUMENTS. Look for it in clients/ then projects/. If none was given, list both folders and ask.
+Input: $ARGUMENTS.
+If you can start a helper agent, do steps 1 and 2 inside one helper and keep only its brief, so the reading stays out of this session.
 
-1. Read its CLAUDE.md, STATE.md, TODO.md and INBOX.md, and the last 30 lines of CHANGELOG.md.
-2. Reply with a brief under 200 words:
-   - Where things stand
-   - Blockers and decisions waiting
-   - What happened recently
-   - Anything waiting in the inbox
+1. Work out the mode:
+   - Client or project: the input matches a folder in clients/ or projects/. Read its CLAUDE.md, STATE.md, TODO.md and INBOX.md, and the last 10 dated entries at the bottom of CHANGELOG.md. List related wiki pages by name only (pages that [[link]] to it, and wiki/clients/<slug>.md if it exists). Do not read their contents.
+   - Topic: the input matches a page in wiki/topics/. Read that page, starting with its Current State block, list the pages it links to by name, and read the last two lines in wiki/log.md that mention it.
+   - Nothing given: read the last two files in log/ and the last five lines of wiki/log.md.
+2. Reply with a brief under 300 words, in this order, leaving out any section that is empty:
+   - Current state: one to three sentences of prose
+   - Blockers: every item under a "## Now (BLOCKER" heading in TODO.md
+   - Recently: at most four bullets, newest first, no repeats of the current state
+   - Open: at most six bullets from TODO.md and INBOX.md
+   - Related pages: at most three, as [[page-name]] with one line each
+   - Suggested next move: one line
 3. End with: "Ready. What are we doing?"
 
 Do not change any files.`,
@@ -30,18 +36,23 @@ description: Save this session into the memory
 argument-hint: <slug>
 ---
 Slug: $ARGUMENTS. If none was given, use the client or project this session was about and say which.
+If you can start a helper agent, do steps 1 to 6 inside one helper and keep only its short report.
 
-1. Summarise what happened this session in a few bullet points.
-2. Show me the planned changes, then make them once I say yes:
-   - CHANGELOG.md: add a section headed with today's date and those bullets. Never edit older entries.
-   - STATE.md: rewrite as a short snapshot of where things stand, with "Last updated: <today>".
-   - TODO.md: tick off what was finished and add what is still open.
+1. Look back over the session for: what was done and decided, new voice rules or brand lines I stated, and anything open or blocked.
+2. If this folder has save points, list today's with \`git log --oneline --since=midnight\`. Copy these lines; never recall them from memory.
+3. Show me the planned changes, then make them once I say yes:
+   - CHANGELOG.md: add a section at the bottom headed with today's date: one bullet per decision, deliverable or finding, then today's save points. Never edit older entries.
+   - STATE.md: rewrite as one to three short paragraphs of prose (no bullets) on where things stand, with "Last updated: <today>". If STATE.md changed since this session started (another session wrote it), read it again and merge both sessions' news instead of overwriting.
+   - TODO.md: tick off what was finished and add what is still open. Put anything blocked under "## Now (BLOCKER: <topic>)".
    - INBOX.md: move each note to the file where it belongs, then clear the notes you moved.
-   - CLAUDE.md: add any new stable fact or rule that came up.
-   - Work this session that was not about this slug goes in log/<today>.md.
-3. If CHANGELOG.md is now longer than about 500 lines, move every whole month older than the current month into archive/CHANGELOG-<YYYY>-<MM>.md (one file per month, entries unchanged, oldest first), and keep the current month in CHANGELOG.md. Never delete an entry.
-4. If this folder has save points, make one: \`git add -A\` then \`git commit -m "wrap: <slug>, <today>"\`.
-5. List the files you changed.
+   - voice.md: file any new voice rule or brand line under "## Rules added", with today's date.
+   - The client's own CLAUDE.md: any new stable fact or rule that came up.
+   - wiki/clients/<slug>.md: if something material changed, rewrite its current snapshot (one snapshot only).
+   - Anything learned that belongs in the wiki: the matching topic page. Work this session that was not about this slug: log/<today>.md.
+4. After writing, check every [[link]] you wrote. For any page that does not exist, create a stub page (frontmatter with status: stub and one line saying what it is).
+5. If CHANGELOG.md is now longer than about 500 lines, move every whole month older than the current month into archive/CHANGELOG-<YYYY>-<MM>.md (one file per month, entries unchanged, oldest first), and keep the current month in CHANGELOG.md. Never delete an entry.
+6. If this folder has save points, make one: \`git add -A\` then \`git commit -m "wrap: <slug>, <today>"\`.
+7. Report in at most three sentences: what was saved, anything filed to voice.md or the wiki, and the one thing the next session must know.
 
 Only record what actually happened. Never invent.`,
   status: `---
@@ -66,6 +77,17 @@ Period: $ARGUMENTS (for example "today", "last week", "14 March", "October"). If
 3. Keep it under 300 words unless I ask for more.
 
 Only report what the files say. Do not change any files.`,
+  trace: `---
+description: Timeline of how an idea, decision or client theme evolved
+argument-hint: <idea, decision or client and theme>
+---
+Subject: $ARGUMENTS. If none was given, ask.
+
+1. Search CHANGELOG.md in clients/ and projects/ (including each archive/ folder), the wiki pages, wiki/log.md, log/ and ideas/ for every dated mention.
+2. Reply with a timeline, oldest first: date, where it was mentioned ([[link]] or file), and one line on what changed.
+3. Finish with two lines: where it stands now, and any open question.
+
+Only report what the files say. Do not change any files.`,
   ingest: `---
 description: Add an article, transcript, file or note to the wiki
 argument-hint: <file, link or pasted text>
@@ -73,10 +95,10 @@ argument-hint: <file, link or pasted text>
 Input: $ARGUMENTS. If nothing was given, ask what to add.
 
 1. Save the original into raw/ as <topic>-<YYYY-MM-DD>.md (or keep the file as it is if it is already in raw/). If it is a link, save the page text using your normal web tool. Never edit raw/ files after saving.
-2. Create wiki/sources/<same-name>.md: title, where it came from, date, and the five to ten points that matter.
-3. For each subject it teaches, add to the matching page in wiki/topics/ (create one if none fits). For each person, company, product or tool, add to its page in wiki/entities/. Link pages to each other and to the source with [[page-name]] links.
+2. Create wiki/sources/<same-name>.md. Start it with frontmatter (title, tags, created, updated, sources, status). Then: where it came from, how it was captured (pasted, saved page, transcript, file), the date, and the five to ten points that matter. Summarise only what the source says; add no opinions.
+3. For each subject it teaches, extend the matching page in wiki/topics/ (create one with frontmatter if none fits, and refresh its Current State block if it has one). For each person, company, product or tool, add to its page in wiki/entities/. Link pages to each other and to the source with [[page-name]] links.
 4. If it relates to a client or project, add a [[link]] to the source in that folder's INBOX.md.
-5. Add every new page to wiki/index.md (one line each) and a dated line to wiki/log.md.
+5. Create a stub page for any [[link]] that points nowhere. Add every new page to wiki/index.md (one line each) and a dated line to wiki/log.md.
 6. Tell me what you created and what you changed.
 
 Never invent facts that are not in the source. Never rewrite anything in ideas/.`,
@@ -103,9 +125,9 @@ Make a lowercase slug with hyphens and create the five files (CLAUDE.md, STATE.m
 
 export const FOLDER_RULES = `## How this folder works
 - Clients live in \`clients/<slug>/\`, my own projects in \`projects/<slug>/\`. Each has CLAUDE.md, STATE.md, CHANGELOG.md, TODO.md and INBOX.md.
-- Start a session with \`/pickup <slug>\` and end it with \`/wrap <slug>\`. \`/status\` shows everything at once.
+- Start a session with \`/pickup <slug>\` and end it with \`/wrap <slug>\`. When I say "that's a wrap", "wrap it up" or "let's wrap", run /wrap. \`/status\` shows everything at once.
 - Before working on a client or project, read its CLAUDE.md and STATE.md.
-- Before researching something, check \`wiki/index.md\` first. We may have done it before.
+- Before researching something or pulling live data, check \`wiki/index.md\` and the client's STATE.md and CHANGELOG.md first. The files have the why; live data only has the numbers.
 - When something is worth keeping (an article, a call, a lesson), run /ingest so it lands in the wiki.
 - One home per fact: stable facts in CLAUDE.md, where things stand in STATE.md, what happened in CHANGELOG.md, what is open in TODO.md.
 - Never invent facts, numbers or quotes. If it is not in the files, ask.
@@ -125,6 +147,7 @@ export const TREE = `<business folder>/
   projects/<slug>/     the same five files, for the owner's own projects
   raw/                 originals you save: articles, transcripts, PDFs, screenshots (never edited)
   wiki/                the knowledge base the agent writes and keeps up to date
+    clients/           one outward summary page per client (a hub)
     index.md           a catalogue of every wiki page, one line each
     log.md             a dated list of everything added
     topics/            one page per subject: how-tos, decisions, research, lessons
@@ -149,10 +172,10 @@ Explain each point in plain words, with an example where it helps.
 ### Where each fact lives
 - **CLAUDE.md (top of the folder)** is read automatically whenever Claude Code starts in the business folder. It holds the things that rarely change: what the business does, how to talk to you, the house rules.
 - **One folder per client or project** keeps work separate. The agent reads only the folder in front of it, so clients never mix and sessions stay fast.
-- **STATE.md** is the snapshot: where things stand right now, in a few lines. It is rewritten at every wrap, so it is always current.
-- **CHANGELOG.md** is the history. Every wrap adds a dated entry of what was done and decided, and old entries are never changed. Over time it becomes a complete diary of the work.
+- **STATE.md** is the snapshot: where things stand right now, in one to three short paragraphs of plain prose, as you would describe it to a colleague. It is rewritten at every wrap, so it is always current. If two sessions worked on the same client, the wrap merges their news rather than overwriting it.
+- **CHANGELOG.md** is the history. Every wrap adds a dated entry at the bottom: one bullet per decision, deliverable or finding, plus that day's save points. Old entries are never changed. Over time it becomes a complete diary of the work. STATE and CHANGELOG each have their own shape so they never repeat each other.
 - **archive/** keeps the changelog short. Once a changelog passes about 500 lines, the next wrap moves whole months older than the current one into \`archive/CHANGELOG-<year>-<month>.md\`. Nothing is deleted, /pickup stays fast, and /review still reads the archive.
-- **TODO.md** is what is still open, including anything blocked or waiting on someone.
+- **TODO.md** is what is still open. Anything blocked goes under a \`## Now (BLOCKER: <topic>)\` heading, and /pickup always shows those first.
 - **INBOX.md** is the drop zone. Paste anything in during the day, in any order. The next wrap files each note where it belongs.
 - **log/** is a diary for days of work that are not about one client.
 
@@ -162,7 +185,11 @@ This layer follows Andrej Karpathy's "LLM wiki" idea: you collect the raw materi
 - **wiki/** is written by the agent. Each thing you save gets a short **source** page. What it teaches goes into **topic** pages (one subject each) and **entity** pages (one person, company, product or tool each).
 - Pages link to each other with \`[[page-name]]\` links. Open the business folder in Obsidian (free) and the links become a clickable map, so you can see how clients, people and ideas connect.
 - **index.md** lists every page in one line, so the agent can find anything fast. **log.md** records what was added and when.
-- Topic pages that are still developing start with a short **Current state** block: where the thinking is now, what is still open, and the next move.
+- Every wiki page starts with a few lines of details (frontmatter): title, tags, created and updated dates, sources, and a status of stub, active or mature.
+- **Source pages** record where each item came from and how it was captured, and summarise only what it says. No opinions are added, so you can always tell your thinking from the source's.
+- Topics that are still developing start with a **Current State** block: where we are, open questions, and the next move. It is rewritten each time the topic moves. Add one when a topic keeps coming up, has a decision still open, or you want to pick it up later.
+- **Client hub pages** (\`wiki/clients/<slug>.md\`) are an outward summary of each client for someone arriving cold. They keep one current snapshot, never a pile of old ones; the changelog holds the history.
+- When a page links to something that does not exist yet, the agent creates a short stub page so the map has no dead ends.
 - **ideas/** is yours. The agent can read and link to it, but never rewrites your words.
 - **Graduating lessons.** When the same lesson turns up for two or more clients, it moves into a wiki topic, so every client benefits. The client changelog keeps the original, and the topic links back to it.
 - **/ingest** adds something new. **/lint**, about once a month, keeps the wiki healthy: it finds broken links, orphan pages, stale or contradicting facts, and lessons ready to graduate.
@@ -170,10 +197,12 @@ This layer follows Andrej Karpathy's "LLM wiki" idea: you collect the raw materi
 - Each fact has one home, so nothing is written twice and nothing goes out of date in a second place.
 
 ### /pickup and /wrap
-- **/pickup <client>** is how a session starts. The agent reads that client's files and gives you a short brief: where things stand, what is blocked, what happened recently, and anything waiting in the inbox. Then it asks what you want to do. You never have to re-explain a client.
-- **/wrap <client>** is how a session ends. The agent writes the session back into the files: a dated entry in CHANGELOG, a fresh STATE, an updated TODO, and the inbox filed away. It shows you the changes first.
+- **/pickup <client>** is how a session starts. The agent reads that client's files and gives you a short brief in the same order every time: where things stand, blockers, what happened recently, what is open, and the suggested next move. Then it asks what you want to do. You never have to re-explain a client.
+- /pickup works three ways: a client or project name, a wiki topic name (it reads that topic's Current State block), or nothing (a general start to the day from the daily log and wiki log).
+- **/wrap <client>** is how a session ends. The agent writes the session back into the files: a dated entry in CHANGELOG, a fresh STATE, an updated TODO, the inbox filed away, and any new voice rule from the session into voice.md (voice rules get lost in a changelog). It shows you the changes first. Saying "that's a wrap", "wrap it up" or "let's wrap" works too.
+- In Claude Code, pickup and wrap do their reading in a helper agent, so the main session only receives the brief and stays fast.
 - Pickup reads, wrap writes. The memory is only as good as the last wrap, so make wrapping a habit.
-- When a session gets long, run /wrap, start a fresh session and /pickup again. A fresh session with good notes beats a tired one with a full memory.
+- When a session gets long, hand it off: /wrap, start a fresh session, /pickup. A fresh session with good notes beats a tired one with a full memory. The go menu makes this one step (see Step 8).
 
 ### Looking back
 - Because every wrap leaves a dated entry, you can ask at any time: "What did I do on 14 March?", "What did I get done this week?", "When did we agree the new price with this client, and why?" The /review command does this across every client, the log and the save points.
@@ -191,6 +220,7 @@ export const DAILY_HABIT = `## Step 9: The daily habit (give the user this summa
 - **Saw something worth keeping:** \`/ingest <link, file or pasted text>\`.
 - **Friday or month end:** \`/review this week\` or \`/review October\` to see what actually got done.
 - **Once a month:** \`/lint\` to keep the wiki tidy and graduate repeated lessons.
+- **How did we get here?** \`/trace <idea or decision>\` for a dated timeline.
 - **When the agent gets something wrong:** agree the fix, then say "add that as a rule to CLAUDE.md".`;
 export const OTHER_AGENTS = `## Using it with Codex or Grok
 
@@ -334,7 +364,7 @@ export function dailyRoutine(): string {
     "",
     DAILY_HABIT,
     "",
-    "## The seven command files",
+    "## The eight command files",
     "Save each one in `.claude/commands/` inside the business folder.",
     "",
     "### .claude/commands/pickup.md",
@@ -352,6 +382,10 @@ export function dailyRoutine(): string {
     "### .claude/commands/review.md",
     "```markdown",
     COMMANDS.review,
+    "```",
+    "### .claude/commands/trace.md",
+    "```markdown",
+    COMMANDS.trace,
     "```",
     "### .claude/commands/ingest.md",
     "```markdown",
