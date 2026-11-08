@@ -8,7 +8,7 @@ Sets up a business operating system for an AI agent on a Mac, for business owner
 
 - **A memory made of plain text files.** One business folder: a folder per client and per project, a dated changelog, a daily log, notes and a voice guide. A year of it takes a few megabytes, opens in any text editor, and belongs to you.
 - **Session commands.** `/pickup` loads a client and briefs you. `/wrap` saves the session back. `/status` shows every client at a glance. `/review` answers "what did I do this week?". `/new-client` adds one.
-- **A complete record.** Every wrap leaves a dated entry, so at the end of a month you can ask what got done on any day, for any client, and why.
+- **A complete record.** Every wrap leaves a dated entry, so at the end of a month you can ask what got done on any day, for any client, and why. Older months move to a monthly archive automatically, so nothing is lost and sessions stay fast.
 - **Save points.** Optional local git history, so every change can be seen or undone.
 - **A tmux `go` menu.** Optional: one session per client, one keypress to switch.
 

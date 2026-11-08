@@ -32,6 +32,7 @@ It is optimised for Claude Code in the terminal, and it also works with Codex an
     CHANGELOG.md       dated history, newest at the bottom (only ever added to)
     TODO.md            open work, blockers, decisions waiting on someone
     INBOX.md           raw notes dropped in during the day, filed at /wrap
+    archive/           older changelog months, moved here by /wrap (never deleted)
   projects/<slug>/     the same five files, for the owner's own projects
   notes/
     reference/         tidy write-ups worth keeping (how-tos, decisions, research)
@@ -59,6 +60,7 @@ Explain each point in plain words, with an example where it helps.
 - **One folder per client or project** keeps work separate. The agent reads only the folder in front of it, so clients never mix and sessions stay fast.
 - **STATE.md** is the snapshot: where things stand right now, in a few lines. It is rewritten at every wrap, so it is always current.
 - **CHANGELOG.md** is the history. Every wrap adds a dated entry of what was done and decided, and old entries are never changed. Over time it becomes a complete diary of the work.
+- **archive/** keeps the changelog short. Once a changelog passes about 500 lines, the next wrap moves whole months older than the current one into `archive/CHANGELOG-<year>-<month>.md`. Nothing is deleted, /pickup stays fast, and /review still reads the archive.
 - **TODO.md** is what is still open, including anything blocked or waiting on someone.
 - **INBOX.md** is the drop zone. Paste anything in during the day, in any order. The next wrap files each note where it belongs.
 - **log/** is a diary for days of work that are not about one client.
@@ -178,8 +180,9 @@ Slug: $ARGUMENTS. If none was given, use the client or project this session was 
    - INBOX.md: move each note to the file where it belongs, then clear the notes you moved.
    - CLAUDE.md: add any new stable fact or rule that came up.
    - Work this session that was not about this slug goes in log/<today>.md.
-3. If this folder has save points, make one: `git add -A` then `git commit -m "wrap: <slug>, <today>"`.
-4. List the files you changed.
+3. If CHANGELOG.md is now longer than about 500 lines, move every whole month older than the current month into archive/CHANGELOG-<YYYY>-<MM>.md (one file per month, entries unchanged, oldest first), and keep the current month in CHANGELOG.md. Never delete an entry.
+4. If this folder has save points, make one: `git add -A` then `git commit -m "wrap: <slug>, <today>"`.
+5. List the files you changed.
 
 Only record what actually happened. Never invent.
 ```
@@ -206,7 +209,7 @@ argument-hint: <date, week or month>
 ---
 Period: $ARGUMENTS (for example "today", "last week", "14 March", "October"). If none was given, use this week.
 
-1. Read the CHANGELOG.md entries in every folder under clients/ and projects/, and the files in log/, that fall in that period.
+1. Read the CHANGELOG.md entries in every folder under clients/ and projects/ (including the monthly files in each archive/ folder), and the files in log/, that fall in that period.
 2. Reply with:
    - What got done, grouped by client or project
    - Decisions made, and why if the notes say
