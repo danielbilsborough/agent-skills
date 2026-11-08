@@ -66,6 +66,33 @@ Period: $ARGUMENTS (for example "today", "last week", "14 March", "October"). If
 3. Keep it under 300 words unless I ask for more.
 
 Only report what the files say. Do not change any files.`,
+  ingest: `---
+description: Add an article, transcript, file or note to the wiki
+argument-hint: <file, link or pasted text>
+---
+Input: $ARGUMENTS. If nothing was given, ask what to add.
+
+1. Save the original into raw/ as <topic>-<YYYY-MM-DD>.md (or keep the file as it is if it is already in raw/). If it is a link, save the page text using your normal web tool. Never edit raw/ files after saving.
+2. Create wiki/sources/<same-name>.md: title, where it came from, date, and the five to ten points that matter.
+3. For each subject it teaches, add to the matching page in wiki/topics/ (create one if none fits). For each person, company, product or tool, add to its page in wiki/entities/. Link pages to each other and to the source with [[page-name]] links.
+4. If it relates to a client or project, add a [[link]] to the source in that folder's INBOX.md.
+5. Add every new page to wiki/index.md (one line each) and a dated line to wiki/log.md.
+6. Tell me what you created and what you changed.
+
+Never invent facts that are not in the source. Never rewrite anything in ideas/.`,
+  lint: `---
+description: Monthly health check of the wiki
+---
+Read wiki/index.md, then the pages in wiki/ and the recent CHANGELOG.md entries in clients/ and projects/.
+
+Report, without changing anything yet:
+1. Broken [[links]] and pages that nothing links to.
+2. Pages missing from wiki/index.md, or listed there but missing.
+3. Facts that contradict each other, or that look out of date.
+4. Lessons that appear for two or more clients and should become a topic page.
+5. Topic pages whose Current state block has gone stale.
+
+Then show the fixes you suggest, and make them once I say yes. Add a dated line to wiki/log.md for what you changed.`,
   newClient: `---
 description: Add a new client or project folder
 argument-hint: <name> [project]
@@ -78,7 +105,8 @@ export const FOLDER_RULES = `## How this folder works
 - Clients live in \`clients/<slug>/\`, my own projects in \`projects/<slug>/\`. Each has CLAUDE.md, STATE.md, CHANGELOG.md, TODO.md and INBOX.md.
 - Start a session with \`/pickup <slug>\` and end it with \`/wrap <slug>\`. \`/status\` shows everything at once.
 - Before working on a client or project, read its CLAUDE.md and STATE.md.
-- Before researching something, check \`notes/\` first. We may have done it before.
+- Before researching something, check \`wiki/index.md\` first. We may have done it before.
+- When something is worth keeping (an article, a call, a lesson), run /ingest so it lands in the wiki.
 - One home per fact: stable facts in CLAUDE.md, where things stand in STATE.md, what happened in CHANGELOG.md, what is open in TODO.md.
 - Never invent facts, numbers or quotes. If it is not in the files, ask.
 - Anything other people will read (emails, posts, web copy) follows \`voice.md\`. Show me a draft first.
@@ -95,10 +123,14 @@ export const TREE = `<business folder>/
     INBOX.md           raw notes dropped in during the day, filed at /wrap
     archive/           older changelog months, moved here by /wrap (never deleted)
   projects/<slug>/     the same five files, for the owner's own projects
-  notes/
-    reference/         tidy write-ups worth keeping (how-tos, decisions, research)
-    sources/           raw material: articles, transcripts, screenshots
-    ideas/             the owner's own thinking, in their own words
+  raw/                 originals you save: articles, transcripts, PDFs, screenshots (never edited)
+  wiki/                the knowledge base the agent writes and keeps up to date
+    index.md           a catalogue of every wiki page, one line each
+    log.md             a dated list of everything added
+    topics/            one page per subject: how-tos, decisions, research, lessons
+    entities/          one page per person, company, product or tool
+    sources/           one summary page for each thing saved in raw/
+  ideas/               your own thinking, in your own words (the agent never rewrites it)
   log/                 one file per day for work that is not about a client
   AGENTS.md            optional pointer for Codex and Grok
   .claude/commands/    the session commands
@@ -123,6 +155,18 @@ Explain each point in plain words, with an example where it helps.
 - **TODO.md** is what is still open, including anything blocked or waiting on someone.
 - **INBOX.md** is the drop zone. Paste anything in during the day, in any order. The next wrap files each note where it belongs.
 - **log/** is a diary for days of work that are not about one client.
+
+### The knowledge base (wiki)
+This layer follows Andrej Karpathy's "LLM wiki" idea: you collect the raw material, and the agent writes and maintains a wiki from it.
+- **raw/** holds the originals exactly as you saved them: an article, a call transcript, a PDF, a screenshot. Nothing in raw/ is ever edited, so the source of every fact stays checkable.
+- **wiki/** is written by the agent. Each thing you save gets a short **source** page. What it teaches goes into **topic** pages (one subject each) and **entity** pages (one person, company, product or tool each).
+- Pages link to each other with \`[[page-name]]\` links. Open the business folder in Obsidian (free) and the links become a clickable map, so you can see how clients, people and ideas connect.
+- **index.md** lists every page in one line, so the agent can find anything fast. **log.md** records what was added and when.
+- Topic pages that are still developing start with a short **Current state** block: where the thinking is now, what is still open, and the next move.
+- **ideas/** is yours. The agent can read and link to it, but never rewrites your words.
+- **Graduating lessons.** When the same lesson turns up for two or more clients, it moves into a wiki topic, so every client benefits. The client changelog keeps the original, and the topic links back to it.
+- **/ingest** adds something new. **/lint**, about once a month, keeps the wiki healthy: it finds broken links, orphan pages, stale or contradicting facts, and lessons ready to graduate.
+- Clients and the wiki work together: the client folders hold what is happening, the wiki holds what you know.
 - Each fact has one home, so nothing is written twice and nothing goes out of date in a second place.
 
 ### /pickup and /wrap
@@ -144,7 +188,9 @@ export const DAILY_HABIT = `## Step 9: The daily habit (give the user this summa
 - **End of each session:** \`/wrap <slug>\`.
 - **New client:** \`/new-client <name>\`.
 - **Monday:** \`/status\`, then clear anything blocked.
+- **Saw something worth keeping:** \`/ingest <link, file or pasted text>\`.
 - **Friday or month end:** \`/review this week\` or \`/review October\` to see what actually got done.
+- **Once a month:** \`/lint\` to keep the wiki tidy and graduate repeated lessons.
 - **When the agent gets something wrong:** agree the fix, then say "add that as a rule to CLAUDE.md".`;
 export const OTHER_AGENTS = `## Using it with Codex or Grok
 
@@ -288,7 +334,7 @@ export function dailyRoutine(): string {
     "",
     DAILY_HABIT,
     "",
-    "## The five command files",
+    "## The seven command files",
     "Save each one in `.claude/commands/` inside the business folder.",
     "",
     "### .claude/commands/pickup.md",
@@ -306,6 +352,14 @@ export function dailyRoutine(): string {
     "### .claude/commands/review.md",
     "```markdown",
     COMMANDS.review,
+    "```",
+    "### .claude/commands/ingest.md",
+    "```markdown",
+    COMMANDS.ingest,
+    "```",
+    "### .claude/commands/lint.md",
+    "```markdown",
+    COMMANDS.lint,
     "```",
     "### .claude/commands/new-client.md",
     "```markdown",

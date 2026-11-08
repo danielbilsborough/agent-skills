@@ -33,7 +33,7 @@ export function buildServer(): McpServer {
     {
       title: "Scaffold business OS",
       description:
-        "Folder layout and starter files for a business operating system: the business CLAUDE.md questions and rules, plus STATE, CHANGELOG, TODO, INBOX and CLAUDE.md for each client and project named.",
+        "Folder layout and starter files for a business operating system: the business CLAUDE.md questions and rules, the wiki layout (raw sources, topics, entities, index, log), plus STATE, CHANGELOG, TODO, INBOX and CLAUDE.md for each client and project named.",
       inputSchema: {
         business_name: name.optional().describe("The business name"),
         clients: z.array(name).max(20).optional().describe("Client names to create folders for"),
@@ -61,7 +61,7 @@ export function buildServer(): McpServer {
     {
       title: "Daily routine",
       description:
-        "How the memory works, the daily habit, the full text of the /pickup, /wrap, /status, /review and /new-client command files, and how to use them with Codex or Grok.",
+        "How the memory works, the daily habit, the full text of the /pickup, /wrap, /status, /review, /ingest, /lint and /new-client command files, and how to use them with Codex or Grok.",
       inputSchema: {},
       annotations: { title: "Daily routine", ...READ_ONLY },
     },
