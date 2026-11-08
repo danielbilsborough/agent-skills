@@ -4,12 +4,15 @@ Agent skills for running a business with Claude Code.
 
 ## business-agent-os
 
-Sets up a business operating system for Claude Code on a Mac, for business owners who are not developers:
+Sets up a business operating system for an AI agent on a Mac, for business owners who are not developers.
 
-- one business folder with a plain-text memory: a folder per client and per project, a notes library, a daily log and a voice guide
-- `/pickup` to load a client and get a short brief, `/wrap` to save the session back, `/status` for everything at a glance, `/new-client` to add one
-- optional local save points (git), so every change can be seen or undone
-- an optional tmux `go` menu to keep one session per client and switch between them
+- **A memory made of plain text files.** One business folder: a folder per client and per project, a dated changelog, a daily log, notes and a voice guide. A year of it takes a few megabytes, opens in any text editor, and belongs to you.
+- **Session commands.** `/pickup` loads a client and briefs you. `/wrap` saves the session back. `/status` shows every client at a glance. `/review` answers "what did I do this week?". `/new-client` adds one.
+- **A complete record.** Every wrap leaves a dated entry, so at the end of a month you can ask what got done on any day, for any client, and why.
+- **Save points.** Optional local git history, so every change can be seen or undone.
+- **A tmux `go` menu.** Optional: one session per client, one keypress to switch.
+
+Optimised for Claude Code in the terminal. It also works with Codex and Grok, because the memory is just text files, and support for them will keep improving.
 
 Everything stays in one folder you choose. Nothing runs in the background, nothing is sent anywhere, nothing is installed for you, and the agent asks before each step.
 

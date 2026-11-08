@@ -3,25 +3,170 @@
 // No network calls, no state, nothing about the caller is kept.
 
 export const LINKS = {
-  site: "https://partner.danielbilsborough.com",
-  repo: "https://github.com/danielbilsborough/agent-skills",
+  site: `https://partner.danielbilsborough.com`,
+  repo: `https://github.com/danielbilsborough/agent-skills`,
 } as const;
 
 const FOOTER = `\n\nBusiness Agent OS by Daniel Bilsborough: ${LINKS.site}`;
 
 export const COMMANDS = {
-  pickup: "---\ndescription: Load a client or project and brief me\nargument-hint: <slug>\n---\nSlug: $ARGUMENTS. Look for it in clients/ then projects/. If none was given, list both folders and ask.\n\n1. Read its CLAUDE.md, STATE.md, TODO.md and INBOX.md, and the last 30 lines of CHANGELOG.md.\n2. Reply with a brief under 200 words:\n   - Where things stand\n   - Blockers and decisions waiting\n   - What happened recently\n   - Anything waiting in the inbox\n3. End with: \"Ready. What are we doing?\"\n\nDo not change any files.",
-  wrap: "---\ndescription: Save this session into the memory\nargument-hint: <slug>\n---\nSlug: $ARGUMENTS. If none was given, use the client or project this session was about and say which.\n\n1. Summarise what happened this session in a few bullet points.\n2. Show me the planned changes, then make them once I say yes:\n   - CHANGELOG.md: add a section headed with today's date and those bullets. Never edit older entries.\n   - STATE.md: rewrite as a short snapshot of where things stand, with \"Last updated: <today>\".\n   - TODO.md: tick off what was finished and add what is still open.\n   - INBOX.md: move each note to the file where it belongs, then clear the notes you moved.\n   - CLAUDE.md: add any new stable fact or rule that came up.\n   - Work this session that was not about this slug goes in log/<today>.md.\n3. If this folder has save points, make one: `git add -A` then `git commit -m \"wrap: <slug>, <today>\"`.\n4. List the files you changed.\n\nOnly record what actually happened. Never invent.",
-  status: "---\ndescription: One-screen view of every client and project\n---\nFor each folder in clients/ and projects/, read STATE.md and TODO.md and show one line:\n<slug>: <one-line state> | <open to-dos> open | last updated <date>\n\nThen list anything marked as blocked or waiting, and any folder not updated in 14 days.\nDo not change any files.",
-  newClient: "---\ndescription: Add a new client or project folder\nargument-hint: <name> [project]\n---\nName: $ARGUMENTS. If the word \"project\" is included, create it under projects/, otherwise under clients/.\nMake a lowercase slug with hyphens and create the five files (CLAUDE.md, STATE.md, CHANGELOG.md, TODO.md, INBOX.md) using the same headings as the existing folders. Ask me for contacts and key facts, and fill in what I give you.",
+  pickup: `---
+description: Load a client or project and brief me
+argument-hint: <slug>
+---
+Slug: $ARGUMENTS. Look for it in clients/ then projects/. If none was given, list both folders and ask.
+
+1. Read its CLAUDE.md, STATE.md, TODO.md and INBOX.md, and the last 30 lines of CHANGELOG.md.
+2. Reply with a brief under 200 words:
+   - Where things stand
+   - Blockers and decisions waiting
+   - What happened recently
+   - Anything waiting in the inbox
+3. End with: "Ready. What are we doing?"
+
+Do not change any files.`,
+  wrap: `---
+description: Save this session into the memory
+argument-hint: <slug>
+---
+Slug: $ARGUMENTS. If none was given, use the client or project this session was about and say which.
+
+1. Summarise what happened this session in a few bullet points.
+2. Show me the planned changes, then make them once I say yes:
+   - CHANGELOG.md: add a section headed with today's date and those bullets. Never edit older entries.
+   - STATE.md: rewrite as a short snapshot of where things stand, with "Last updated: <today>".
+   - TODO.md: tick off what was finished and add what is still open.
+   - INBOX.md: move each note to the file where it belongs, then clear the notes you moved.
+   - CLAUDE.md: add any new stable fact or rule that came up.
+   - Work this session that was not about this slug goes in log/<today>.md.
+3. If this folder has save points, make one: \`git add -A\` then \`git commit -m "wrap: <slug>, <today>"\`.
+4. List the files you changed.
+
+Only record what actually happened. Never invent.`,
+  status: `---
+description: One-screen view of every client and project
+---
+For each folder in clients/ and projects/, read STATE.md and TODO.md and show one line:
+<slug>: <one-line state> | <open to-dos> open | last updated <date>
+
+Then list anything marked as blocked or waiting, and any folder not updated in 14 days.
+Do not change any files.`,
+  review: `---
+description: What did I do on a day, a week or a month
+argument-hint: <date, week or month>
+---
+Period: $ARGUMENTS (for example "today", "last week", "14 March", "October"). If none was given, use this week.
+
+1. Read the CHANGELOG.md entries in every folder under clients/ and projects/, and the files in log/, that fall in that period.
+2. Reply with:
+   - What got done, grouped by client or project
+   - Decisions made, and why if the notes say
+   - What is still open from that period
+3. Keep it under 300 words unless I ask for more.
+
+Only report what the files say. Do not change any files.`,
+  newClient: `---
+description: Add a new client or project folder
+argument-hint: <name> [project]
+---
+Name: $ARGUMENTS. If the word "project" is included, create it under projects/, otherwise under clients/.
+Make a lowercase slug with hyphens and create the five files (CLAUDE.md, STATE.md, CHANGELOG.md, TODO.md, INBOX.md) using the same headings as the existing folders. Ask me for contacts and key facts, and fill in what I give you.`,
 } as const;
 
-export const FOLDER_RULES = "## How this folder works\n- Clients live in `clients/<slug>/`, my own projects in `projects/<slug>/`. Each has CLAUDE.md, STATE.md, CHANGELOG.md, TODO.md and INBOX.md.\n- Start a session with `/pickup <slug>` and end it with `/wrap <slug>`. `/status` shows everything at once.\n- Before working on a client or project, read its CLAUDE.md and STATE.md.\n- Before researching something, check `notes/` first. We may have done it before.\n- One home per fact: stable facts in CLAUDE.md, where things stand in STATE.md, what happened in CHANGELOG.md, what is open in TODO.md.\n- Never invent facts, numbers or quotes. If it is not in the files, ask.\n- Anything other people will read (emails, posts, web copy) follows `voice.md`. Show me a draft first.\n- Secrets (passwords, API keys) live only in a `.env` file in this folder, never in chat and never in notes.\n- When something goes wrong and we agree on a fix, add it as a rule to this file so it does not happen again.";
-export const TREE = "<business folder>/\n  CLAUDE.md            the business, how to talk, house rules (read at every start)\n  voice.md             how the owner writes, for anything other people will read\n  clients/<slug>/      one folder per client\n    CLAUDE.md          stable facts: contacts, account IDs, spelling, client rules\n    STATE.md           where things stand now (rewritten at every /wrap)\n    CHANGELOG.md       dated history, newest at the bottom (only ever added to)\n    TODO.md            open work, blockers, decisions waiting on someone\n    INBOX.md           raw notes dropped in during the day, filed at /wrap\n  projects/<slug>/     the same five files, for the owner's own projects\n  notes/\n    reference/         tidy write-ups worth keeping (how-tos, decisions, research)\n    sources/           raw material: articles, transcripts, screenshots\n    ideas/             the owner's own thinking, in their own words\n  log/                 one file per day for work that is not about a client\n  .claude/commands/    the session commands\n  .gitignore           keeps secrets out of the save points\n  .agent-os/go.zsh     optional tmux menu";
-export const HOW_IT_WORKS = "## How it works (explain this to the user before starting)\n\n- **The agent forgets everything between sessions.** The files are its memory. If it is not written down, the next session will not know it.\n- **CLAUDE.md is read automatically** whenever Claude Code starts in the business folder. It holds the things that rarely change.\n- **One folder per client or project** keeps work separate. The agent reads only the folder in front of it, so clients never mix and sessions stay fast.\n- **STATE is the snapshot, CHANGELOG is the history, TODO is what is open, INBOX is the drop zone.** Each fact has one home.\n- **Start with /pickup, end with /wrap.** Pickup turns the files into a short brief. Wrap turns the session back into files. The memory is only as good as the last wrap.\n- **Save points.** Every wrap can also make a local save point, so any change the agent makes can be looked at or undone later. Nothing leaves the computer.\n- **When a session gets long,** run /wrap, start a fresh session, and /pickup again. A fresh session with good notes beats a tired one with a full memory.";
-export const DAILY_HABIT = "## Step 9: The daily habit (give the user this summary)\n\n- **Start of day:** `/status` to see everything, then `go` and pick a client, then `/pickup <slug>`.\n- **During the day:** paste anything worth remembering into that client's INBOX.md, or just tell the agent \"note this\".\n- **End of each session:** `/wrap <slug>`.\n- **New client:** `/new-client <name>`.\n- **Monday:** `/status`, then clear anything blocked.\n- **When the agent gets something wrong:** agree the fix, then say \"add that as a rule to CLAUDE.md\".";
-export const VOICE_STEP = "## Step 3: Write voice.md\n\nAsk the user to paste two or three things they have written that sound like them (an email, a post, a page). From those, write `voice.md` with:\n\n- `## How I sound`: three to five plain observations (for example: short sentences, dry, direct).\n- `## Words I use` and `## Words I never use`.\n- `## Examples`: the samples they pasted, unchanged.\n\nIf they have nothing to paste, create the headings with a note to fill it in later.";
-export const SETUP_QUESTIONS = "Ask these one at a time:\n\n1. What is the business called, and what does it do, in one sentence?\n2. Who are the customers?\n3. What do you sell?\n4. How should the agent talk to you? (Suggest: plain English, short answers, one idea per line, explain anything technical as if to a smart non-coder.)\n5. What must the agent never do without asking? (Suggest: send an email or message, post anything public, spend money, delete files.)";
+export const FOLDER_RULES = `## How this folder works
+- Clients live in \`clients/<slug>/\`, my own projects in \`projects/<slug>/\`. Each has CLAUDE.md, STATE.md, CHANGELOG.md, TODO.md and INBOX.md.
+- Start a session with \`/pickup <slug>\` and end it with \`/wrap <slug>\`. \`/status\` shows everything at once.
+- Before working on a client or project, read its CLAUDE.md and STATE.md.
+- Before researching something, check \`notes/\` first. We may have done it before.
+- One home per fact: stable facts in CLAUDE.md, where things stand in STATE.md, what happened in CHANGELOG.md, what is open in TODO.md.
+- Never invent facts, numbers or quotes. If it is not in the files, ask.
+- Anything other people will read (emails, posts, web copy) follows \`voice.md\`. Show me a draft first.
+- Secrets (passwords, API keys) live only in a \`.env\` file in this folder, never in chat and never in notes.
+- When something goes wrong and we agree on a fix, add it as a rule to this file so it does not happen again.`;
+export const TREE = `<business folder>/
+  CLAUDE.md            the business, how to talk, house rules (read at every start)
+  voice.md             how the owner writes, for anything other people will read
+  clients/<slug>/      one folder per client
+    CLAUDE.md          stable facts: contacts, account IDs, spelling, client rules
+    STATE.md           where things stand now (rewritten at every /wrap)
+    CHANGELOG.md       dated history, newest at the bottom (only ever added to)
+    TODO.md            open work, blockers, decisions waiting on someone
+    INBOX.md           raw notes dropped in during the day, filed at /wrap
+  projects/<slug>/     the same five files, for the owner's own projects
+  notes/
+    reference/         tidy write-ups worth keeping (how-tos, decisions, research)
+    sources/           raw material: articles, transcripts, screenshots
+    ideas/             the owner's own thinking, in their own words
+  log/                 one file per day for work that is not about a client
+  AGENTS.md            optional pointer for Codex and Grok
+  .claude/commands/    the session commands
+  .gitignore           keeps secrets out of the save points
+  .agent-os/go.zsh     optional tmux menu`;
+export const HOW_IT_WORKS = `## How it works (explain this to the user before starting)
+
+Explain each point in plain words, with an example where it helps.
+
+### The memory is just text files
+- The agent forgets everything between sessions. The files are its memory. If it is not written down, the next session will not know it.
+- They are plain Markdown text files. A year of notes for a busy business is a few megabytes, smaller than one phone photo.
+- You can open them in any text editor, search them, back them up, or move them to another computer. They belong to you, not to a software company.
+- Any agent can read them. Switch tools and the memory comes with you.
+
+### Where each fact lives
+- **CLAUDE.md (top of the folder)** is read automatically whenever Claude Code starts in the business folder. It holds the things that rarely change: what the business does, how to talk to you, the house rules.
+- **One folder per client or project** keeps work separate. The agent reads only the folder in front of it, so clients never mix and sessions stay fast.
+- **STATE.md** is the snapshot: where things stand right now, in a few lines. It is rewritten at every wrap, so it is always current.
+- **CHANGELOG.md** is the history. Every wrap adds a dated entry of what was done and decided, and old entries are never changed. Over time it becomes a complete diary of the work.
+- **TODO.md** is what is still open, including anything blocked or waiting on someone.
+- **INBOX.md** is the drop zone. Paste anything in during the day, in any order. The next wrap files each note where it belongs.
+- **log/** is a diary for days of work that are not about one client.
+- Each fact has one home, so nothing is written twice and nothing goes out of date in a second place.
+
+### /pickup and /wrap
+- **/pickup <client>** is how a session starts. The agent reads that client's files and gives you a short brief: where things stand, what is blocked, what happened recently, and anything waiting in the inbox. Then it asks what you want to do. You never have to re-explain a client.
+- **/wrap <client>** is how a session ends. The agent writes the session back into the files: a dated entry in CHANGELOG, a fresh STATE, an updated TODO, and the inbox filed away. It shows you the changes first.
+- Pickup reads, wrap writes. The memory is only as good as the last wrap, so make wrapping a habit.
+- When a session gets long, run /wrap, start a fresh session and /pickup again. A fresh session with good notes beats a tired one with a full memory.
+
+### Looking back
+- Because every wrap leaves a dated entry, you can ask at any time: "What did I do on 14 March?", "What did I get done this week?", "When did we agree the new price with this client, and why?" The /review command does this across every client, the log and the save points.
+- At the end of a month this is a record of your work that you would never have had time to write yourself.
+
+### Save points
+- Every wrap can also make a local save point (git), so any change the agent makes can be seen or undone later. Nothing leaves the computer.`;
+export const DAILY_HABIT = `## Step 9: The daily habit (give the user this summary)
+
+- **Start of day:** \`/status\` to see everything, then \`go\` and pick a client, then \`/pickup <slug>\`.
+- **During the day:** paste anything worth remembering into that client's INBOX.md, or just tell the agent "note this".
+- **End of each session:** \`/wrap <slug>\`.
+- **New client:** \`/new-client <name>\`.
+- **Monday:** \`/status\`, then clear anything blocked.
+- **Friday or month end:** \`/review this week\` or \`/review October\` to see what actually got done.
+- **When the agent gets something wrong:** agree the fix, then say "add that as a rule to CLAUDE.md".`;
+export const OTHER_AGENTS = `## Using it with Codex or Grok
+
+The memory works with any agent, because it is only text files. Two things differ:
+
+- **Startup file.** Codex and Grok read \`AGENTS.md\` at startup, not \`CLAUDE.md\`. If the user wants to use them, ask, then create \`AGENTS.md\` at the top of the business folder containing just: "Read CLAUDE.md in this folder first, and follow it."
+- **Commands.** The slash commands are a Claude Code feature. In Codex or Grok, ask in plain words instead, for example: "Run the pickup for acme-plumbing, following .claude/commands/pickup.md." The steps are the same.
+
+The tmux menu starts Claude Code by default. To start a different agent, change the word \`claude\` in go.zsh to that agent's command.`;
+export const VOICE_STEP = `## Step 3: Write voice.md
+
+Ask the user to paste two or three things they have written that sound like them (an email, a post, a page). From those, write \`voice.md\` with:
+
+- \`## How I sound\`: three to five plain observations (for example: short sentences, dry, direct).
+- \`## Words I use\` and \`## Words I never use\`.
+- \`## Examples\`: the samples they pasted, unchanged.
+
+If they have nothing to paste, create the headings with a note to fill it in later.`;
+export const SETUP_QUESTIONS = `Ask these one at a time:
+
+1. What is the business called, and what does it do, in one sentence?
+2. Who are the customers?
+3. What do you sell?
+4. How should the agent talk to you? (Suggest: plain English, short answers, one idea per line, explain anything technical as if to a smart non-coder.)
+5. What must the agent never do without asking? (Suggest: send an email or message, post anything public, spend money, delete files.)`;
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -140,7 +285,7 @@ export function dailyRoutine(): string {
     "",
     DAILY_HABIT,
     "",
-    "## The four command files",
+    "## The five command files",
     "Save each one in `.claude/commands/` inside the business folder.",
     "",
     "### .claude/commands/pickup.md",
@@ -155,10 +300,16 @@ export function dailyRoutine(): string {
     "```markdown",
     COMMANDS.status,
     "```",
+    "### .claude/commands/review.md",
+    "```markdown",
+    COMMANDS.review,
+    "```",
     "### .claude/commands/new-client.md",
     "```markdown",
     COMMANDS.newClient,
     "```",
+    "",
+    OTHER_AGENTS,
   ].join("\n") + FOOTER;
 }
 

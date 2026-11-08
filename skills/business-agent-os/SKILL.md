@@ -1,13 +1,15 @@
 ---
 name: business-agent-os
-description: Set up a business operating system for Claude Code on a Mac, built for business owners who are not developers. It creates one business folder holding a plain-text memory (a folder per client and per project, a notes library and a voice guide), commands to start and end each work session (/pickup, /wrap, /status, /new-client), local save points so every change can be undone, and an optional tmux "go" menu to keep one session per client. Use when someone wants Claude Code to remember their business between sessions, or asks to set up an agent operating system.
+description: Set up a business operating system for an AI agent on a Mac, built for business owners who are not developers. One business folder holds a plain-text memory (a folder per client and per project, a dated changelog, a daily log, notes and a voice guide), with commands to start and end each work session (/pickup, /wrap, /status, /review, /new-client), local save points so every change can be undone, and an optional tmux "go" menu. Optimised for Claude Code; also works with Codex and Grok. Use when someone wants their agent to remember their business between sessions, or asks to set up an agent operating system.
 ---
 
 # Business Agent OS
 
-A small operating system for running a business with Claude Code. It suits someone who thinks in business terms, can read a little code, and wants to own every file their agent works from.
+A small operating system for running a business with an AI agent. It suits someone who thinks in business terms, can read a little code, and wants to own every file their agent works from.
 
 Everything is plain Markdown in one folder the user chooses. Nothing runs in the background, nothing is sent anywhere, and the agent asks before every step.
+
+It is optimised for Claude Code in the terminal, and it also works with Codex and Grok, because the memory is just text files any agent can read. See "Using it with Codex or Grok" near the end.
 
 ## Rules for running this skill
 
@@ -36,6 +38,7 @@ Everything is plain Markdown in one folder the user chooses. Nothing runs in the
     sources/           raw material: articles, transcripts, screenshots
     ideas/             the owner's own thinking, in their own words
   log/                 one file per day for work that is not about a client
+  AGENTS.md            optional pointer for Codex and Grok
   .claude/commands/    the session commands
   .gitignore           keeps secrets out of the save points
   .agent-os/go.zsh     optional tmux menu
@@ -43,19 +46,42 @@ Everything is plain Markdown in one folder the user chooses. Nothing runs in the
 
 ## How it works (explain this to the user before starting)
 
-- **The agent forgets everything between sessions.** The files are its memory. If it is not written down, the next session will not know it.
-- **CLAUDE.md is read automatically** whenever Claude Code starts in the business folder. It holds the things that rarely change.
+Explain each point in plain words, with an example where it helps.
+
+### The memory is just text files
+- The agent forgets everything between sessions. The files are its memory. If it is not written down, the next session will not know it.
+- They are plain Markdown text files. A year of notes for a busy business is a few megabytes, smaller than one phone photo.
+- You can open them in any text editor, search them, back them up, or move them to another computer. They belong to you, not to a software company.
+- Any agent can read them. Switch tools and the memory comes with you.
+
+### Where each fact lives
+- **CLAUDE.md (top of the folder)** is read automatically whenever Claude Code starts in the business folder. It holds the things that rarely change: what the business does, how to talk to you, the house rules.
 - **One folder per client or project** keeps work separate. The agent reads only the folder in front of it, so clients never mix and sessions stay fast.
-- **STATE is the snapshot, CHANGELOG is the history, TODO is what is open, INBOX is the drop zone.** Each fact has one home.
-- **Start with /pickup, end with /wrap.** Pickup turns the files into a short brief. Wrap turns the session back into files. The memory is only as good as the last wrap.
-- **Save points.** Every wrap can also make a local save point, so any change the agent makes can be looked at or undone later. Nothing leaves the computer.
-- **When a session gets long,** run /wrap, start a fresh session, and /pickup again. A fresh session with good notes beats a tired one with a full memory.
+- **STATE.md** is the snapshot: where things stand right now, in a few lines. It is rewritten at every wrap, so it is always current.
+- **CHANGELOG.md** is the history. Every wrap adds a dated entry of what was done and decided, and old entries are never changed. Over time it becomes a complete diary of the work.
+- **TODO.md** is what is still open, including anything blocked or waiting on someone.
+- **INBOX.md** is the drop zone. Paste anything in during the day, in any order. The next wrap files each note where it belongs.
+- **log/** is a diary for days of work that are not about one client.
+- Each fact has one home, so nothing is written twice and nothing goes out of date in a second place.
+
+### /pickup and /wrap
+- **/pickup <client>** is how a session starts. The agent reads that client's files and gives you a short brief: where things stand, what is blocked, what happened recently, and anything waiting in the inbox. Then it asks what you want to do. You never have to re-explain a client.
+- **/wrap <client>** is how a session ends. The agent writes the session back into the files: a dated entry in CHANGELOG, a fresh STATE, an updated TODO, and the inbox filed away. It shows you the changes first.
+- Pickup reads, wrap writes. The memory is only as good as the last wrap, so make wrapping a habit.
+- When a session gets long, run /wrap, start a fresh session and /pickup again. A fresh session with good notes beats a tired one with a full memory.
+
+### Looking back
+- Because every wrap leaves a dated entry, you can ask at any time: "What did I do on 14 March?", "What did I get done this week?", "When did we agree the new price with this client, and why?" The /review command does this across every client, the log and the save points.
+- At the end of a month this is a record of your work that you would never have had time to write yourself.
+
+### Save points
+- Every wrap can also make a local save point (git), so any change the agent makes can be seen or undone later. Nothing leaves the computer.
 
 ## Step 1: Choose the business folder
 
 Ask where it should live. Suggest `~/business`. Create it if it does not exist, and work only inside it from now on.
 
-## Step 2: Write CLAUDE.md
+## Step 2: Create CLAUDE.md
 
 Ask these one at a time:
 
@@ -65,7 +91,7 @@ Ask these one at a time:
 4. How should the agent talk to you? (Suggest: plain English, short answers, one idea per line, explain anything technical as if to a smart non-coder.)
 5. What must the agent never do without asking? (Suggest: send an email or message, post anything public, spend money, delete files.)
 
-Write the answers into `CLAUDE.md` under `# <Business name>`, `## What we do`, `## Customers`, `## What we sell`, `## How to talk to me`, `## Ask first`. Then add this section unchanged:
+Put the answers into `CLAUDE.md` under `# <Business name>`, `## What we do`, `## Customers`, `## What we sell`, `## How to talk to me`, `## Ask first`. Then add this section unchanged:
 
 ```markdown
 ## How this folder works
@@ -113,7 +139,7 @@ Ask for the first client's name. Make a lowercase slug with hyphens (for example
 
 ## Step 6: Add the session commands
 
-Create these four files in `.claude/commands/` with exactly this content. Explain that they work whenever Claude Code is started inside the business folder.
+Create these five files in `.claude/commands/` with exactly this content. Explain that they work whenever Claude Code is started inside the business folder.
 
 `.claude/commands/pickup.md`:
 
@@ -169,6 +195,25 @@ For each folder in clients/ and projects/, read STATE.md and TODO.md and show on
 
 Then list anything marked as blocked or waiting, and any folder not updated in 14 days.
 Do not change any files.
+```
+
+`.claude/commands/review.md`:
+
+```markdown
+---
+description: What did I do on a day, a week or a month
+argument-hint: <date, week or month>
+---
+Period: $ARGUMENTS (for example "today", "last week", "14 March", "October"). If none was given, use this week.
+
+1. Read the CHANGELOG.md entries in every folder under clients/ and projects/, and the files in log/, that fall in that period.
+2. Reply with:
+   - What got done, grouped by client or project
+   - Decisions made, and why if the notes say
+   - What is still open from that period
+3. Keep it under 300 words unless I ask for more.
+
+Only report what the files say. Do not change any files.
 ```
 
 `.claude/commands/new-client.md`:
@@ -270,7 +315,17 @@ source "<business folder>/.agent-os/go.zsh"
 - **End of each session:** `/wrap <slug>`.
 - **New client:** `/new-client <name>`.
 - **Monday:** `/status`, then clear anything blocked.
+- **Friday or month end:** `/review this week` or `/review October` to see what actually got done.
 - **When the agent gets something wrong:** agree the fix, then say "add that as a rule to CLAUDE.md".
+
+## Using it with Codex or Grok
+
+The memory works with any agent, because it is only text files. Two things differ:
+
+- **Startup file.** Codex and Grok read `AGENTS.md` at startup, not `CLAUDE.md`. If the user wants to use them, ask, then create `AGENTS.md` at the top of the business folder containing just: "Read CLAUDE.md in this folder first, and follow it."
+- **Commands.** The slash commands are a Claude Code feature. In Codex or Grok, ask in plain words instead, for example: "Run the pickup for acme-plumbing, following .claude/commands/pickup.md." The steps are the same.
+
+The tmux menu starts Claude Code by default. To start a different agent, change the word `claude` in go.zsh to that agent's command.
 
 ## Step 10: Finish
 
