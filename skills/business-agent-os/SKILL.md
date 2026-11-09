@@ -1,6 +1,6 @@
 ---
 name: business-agent-os
-description: Set up a business operating system for an AI agent on a Mac, built for business owners who are not developers. One business folder holds a plain-text memory in two layers - a folder per client and per project (state, dated changelog with a monthly archive, to-do, inbox) and a Karpathy-style wiki the agent maintains from your saved sources (topics, people and tools, source summaries, an index and a log, linked for Obsidian) - plus commands to start and end each session (/pickup, /wrap, /status, /review, /trace, /new-client, /ingest, /lint), local save points and an optional tmux go menu. Optimised for Claude Code; also works with Codex and Grok. Use when someone wants their agent to remember their business between sessions, or asks to set up an agent operating system.
+description: Set up a business operating system for an AI agent on a Mac, built for business owners who are not developers. One business folder holds a plain-text memory in two layers - a folder per client and per project (state, dated changelog with a monthly archive, to-do, inbox) and a Karpathy-style wiki the agent maintains from your saved sources (topics, people and tools, source summaries, an index and a log, linked for Obsidian) - plus commands to start and end each session (/pickup, /wrap, /biz-status, /biz-review, /trace, /new-client, /ingest, /lint), local save points and an optional tmux go menu. Optimised for Claude Code; also works with Codex, Grok and Hermes. Use when someone wants their agent to remember their business between sessions, or asks to set up an agent operating system.
 ---
 
 # Business Agent OS
@@ -9,7 +9,7 @@ A small operating system for running a business with an AI agent. It suits someo
 
 Everything is plain Markdown in one folder the user chooses. Nothing runs in the background, nothing is sent anywhere, and the agent asks before every step.
 
-It is optimised for Claude Code in the terminal, and it also works with Codex and Grok, because the memory is just text files any agent can read. See "Using it with Codex or Grok" near the end.
+It is optimised for Claude Code in the terminal, and it also works with Codex and Grok, because the memory is just text files any agent can read. See "Using it with Codex, Grok or Hermes" near the end.
 
 ## Rules for running this skill
 
@@ -65,7 +65,7 @@ Explain each point in plain words, with an example where it helps.
 - **One folder per client or project** keeps work separate. The agent reads only the folder in front of it, so clients never mix and sessions stay fast.
 - **STATE.md** is the snapshot: where things stand right now, in one to three short paragraphs of plain prose, as you would describe it to a colleague. It is rewritten at every wrap, so it is always current. If two sessions worked on the same client, the wrap merges their news rather than overwriting it.
 - **CHANGELOG.md** is the history. Every wrap adds a dated entry at the bottom: one bullet per decision, deliverable or finding, plus that day's save points. Old entries are never changed. Over time it becomes a complete diary of the work. STATE and CHANGELOG each have their own shape so they never repeat each other.
-- **archive/** keeps the changelog short. Once a changelog passes about 500 lines, the next wrap moves whole months older than the current one into `archive/CHANGELOG-<year>-<month>.md`. Nothing is deleted, /pickup stays fast, and /review still reads the archive.
+- **archive/** keeps the changelog short. Once a changelog passes about 500 lines, the next wrap moves whole months older than the current one into `archive/CHANGELOG-<year>-<month>.md`. Nothing is deleted, /pickup stays fast, and /biz-review still reads the archive.
 - **TODO.md** is what is still open. Anything blocked goes under a `## Now (BLOCKER: <topic>)` heading, and /pickup always shows those first.
 - **INBOX.md** is the drop zone. Paste anything in during the day, in any order. The next wrap files each note where it belongs.
 - **log/** is a diary for days of work that are not about one client.
@@ -96,7 +96,7 @@ This layer follows Andrej Karpathy's "LLM wiki" idea: you collect the raw materi
 - When a session gets long, hand it off: /wrap, start a fresh session, /pickup. A fresh session with good notes beats a tired one with a full memory. The go menu makes this one step (see Step 8).
 
 ### Looking back
-- Because every wrap leaves a dated entry, you can ask at any time: "What did I do on 14 March?", "What did I get done this week?", "When did we agree the new price with this client, and why?" The /review command does this across every client, the log and the save points.
+- Because every wrap leaves a dated entry, you can ask at any time: "What did I do on 14 March?", "What did I get done this week?", "When did we agree the new price with this client, and why?" The /biz-review command does this across every client, the log and the save points.
 - At the end of a month this is a record of your work that you would never have had time to write yourself.
 
 ### Save points
@@ -121,7 +121,7 @@ Put the answers into `CLAUDE.md` under `# <Business name>`, `## What we do`, `##
 ```markdown
 ## How this folder works
 - Clients live in `clients/<slug>/`, my own projects in `projects/<slug>/`. Each has CLAUDE.md, STATE.md, CHANGELOG.md, TODO.md and INBOX.md.
-- Start a session with `/pickup <slug>` and end it with `/wrap <slug>`. When I say "that's a wrap", "wrap it up" or "let's wrap", run /wrap. `/status` shows everything at once.
+- Start a session with `/pickup <slug>` and end it with `/wrap <slug>`. When I say "that's a wrap", "wrap it up" or "let's wrap", run /wrap. `/biz-status` shows everything at once.
 - Before working on a client or project, read its CLAUDE.md and STATE.md.
 - Before researching something or pulling live data, check `wiki/index.md` and the client's STATE.md and CHANGELOG.md first. The files have the why; live data only has the numbers.
 - When something is worth keeping (an article, a call, a lesson), run /ingest so it lands in the wiki.
@@ -230,7 +230,7 @@ If you can start a helper agent, do steps 1 to 6 inside one helper and keep only
 Only record what actually happened. Never invent.
 ```
 
-`.claude/commands/status.md`:
+`.claude/commands/biz-status.md`:
 
 ```markdown
 ---
@@ -243,7 +243,7 @@ Then list anything marked as blocked or waiting, and any folder not updated in 1
 Do not change any files.
 ```
 
-`.claude/commands/review.md`:
+`.claude/commands/biz-review.md`:
 
 ```markdown
 ---
@@ -425,23 +425,24 @@ Optional: to have the menu open every time a new Terminal window opens, they can
 
 ## Step 9: The daily habit (give the user this summary)
 
-- **Start of day:** `/status` to see everything, then `go` and pick a client, then `/pickup <slug>`.
+- **Start of day:** `/biz-status` to see everything, then `go` and pick a client, then `/pickup <slug>`.
 - **During the day:** paste anything worth remembering into that client's INBOX.md, or just tell the agent "note this".
 - **End of each session:** `/wrap <slug>`.
 - **New client:** `/new-client <name>`.
-- **Monday:** `/status`, then clear anything blocked.
+- **Monday:** `/biz-status`, then clear anything blocked.
 - **Saw something worth keeping:** `/ingest <link, file or pasted text>`.
-- **Friday or month end:** `/review this week` or `/review October` to see what actually got done.
+- **Friday or month end:** `/biz-review this week` or `/biz-review October` to see what actually got done.
 - **Once a month:** `/lint` to keep the wiki tidy and graduate repeated lessons.
 - **How did we get here?** `/trace <idea or decision>` for a dated timeline.
 - **When the agent gets something wrong:** agree the fix, then say "add that as a rule to CLAUDE.md".
 
-## Using it with Codex or Grok
+## Using it with Codex, Grok or Hermes
 
 The memory works with any agent, because it is only text files. Two things differ:
 
 - **Startup file.** Codex and Grok read `AGENTS.md` at startup, not `CLAUDE.md`. If the user wants to use them, ask, then create `AGENTS.md` at the top of the business folder containing just: "Read CLAUDE.md in this folder first, and follow it."
-- **Commands.** The slash commands are a Claude Code feature. In Codex or Grok, ask in plain words instead, for example: "Run the pickup for acme-plumbing, following .claude/commands/pickup.md." The steps are the same.
+- **Commands.** The slash commands are a Claude Code feature. In Codex, Grok or Hermes, ask in plain words instead, for example: "Run the pickup for acme-plumbing, following .claude/commands/pickup.md." The steps are the same.
+- **Hermes.** Hermes has its own built-in `/status` and `/review`, which is why these commands are called `/biz-status` and `/biz-review`. In Hermes you can also just ask in plain words, for example "run the pickup for acme-plumbing" or "what did I get done this week?".
 
 The tmux menu starts Claude Code by default. To start a different agent, change the word `claude` in go.zsh to that agent's command.
 

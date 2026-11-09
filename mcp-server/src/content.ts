@@ -125,7 +125,7 @@ Make a lowercase slug with hyphens and create the five files (CLAUDE.md, STATE.m
 
 export const FOLDER_RULES = `## How this folder works
 - Clients live in \`clients/<slug>/\`, my own projects in \`projects/<slug>/\`. Each has CLAUDE.md, STATE.md, CHANGELOG.md, TODO.md and INBOX.md.
-- Start a session with \`/pickup <slug>\` and end it with \`/wrap <slug>\`. When I say "that's a wrap", "wrap it up" or "let's wrap", run /wrap. \`/status\` shows everything at once.
+- Start a session with \`/pickup <slug>\` and end it with \`/wrap <slug>\`. When I say "that's a wrap", "wrap it up" or "let's wrap", run /wrap. \`/biz-status\` shows everything at once.
 - Before working on a client or project, read its CLAUDE.md and STATE.md.
 - Before researching something or pulling live data, check \`wiki/index.md\` and the client's STATE.md and CHANGELOG.md first. The files have the why; live data only has the numbers.
 - When something is worth keeping (an article, a call, a lesson), run /ingest so it lands in the wiki.
@@ -174,7 +174,7 @@ Explain each point in plain words, with an example where it helps.
 - **One folder per client or project** keeps work separate. The agent reads only the folder in front of it, so clients never mix and sessions stay fast.
 - **STATE.md** is the snapshot: where things stand right now, in one to three short paragraphs of plain prose, as you would describe it to a colleague. It is rewritten at every wrap, so it is always current. If two sessions worked on the same client, the wrap merges their news rather than overwriting it.
 - **CHANGELOG.md** is the history. Every wrap adds a dated entry at the bottom: one bullet per decision, deliverable or finding, plus that day's save points. Old entries are never changed. Over time it becomes a complete diary of the work. STATE and CHANGELOG each have their own shape so they never repeat each other.
-- **archive/** keeps the changelog short. Once a changelog passes about 500 lines, the next wrap moves whole months older than the current one into \`archive/CHANGELOG-<year>-<month>.md\`. Nothing is deleted, /pickup stays fast, and /review still reads the archive.
+- **archive/** keeps the changelog short. Once a changelog passes about 500 lines, the next wrap moves whole months older than the current one into \`archive/CHANGELOG-<year>-<month>.md\`. Nothing is deleted, /pickup stays fast, and /biz-review still reads the archive.
 - **TODO.md** is what is still open. Anything blocked goes under a \`## Now (BLOCKER: <topic>)\` heading, and /pickup always shows those first.
 - **INBOX.md** is the drop zone. Paste anything in during the day, in any order. The next wrap files each note where it belongs.
 - **log/** is a diary for days of work that are not about one client.
@@ -205,20 +205,20 @@ This layer follows Andrej Karpathy's "LLM wiki" idea: you collect the raw materi
 - When a session gets long, hand it off: /wrap, start a fresh session, /pickup. A fresh session with good notes beats a tired one with a full memory. The go menu makes this one step (see Step 8).
 
 ### Looking back
-- Because every wrap leaves a dated entry, you can ask at any time: "What did I do on 14 March?", "What did I get done this week?", "When did we agree the new price with this client, and why?" The /review command does this across every client, the log and the save points.
+- Because every wrap leaves a dated entry, you can ask at any time: "What did I do on 14 March?", "What did I get done this week?", "When did we agree the new price with this client, and why?" The /biz-review command does this across every client, the log and the save points.
 - At the end of a month this is a record of your work that you would never have had time to write yourself.
 
 ### Save points
 - Every wrap can also make a local save point (git), so any change the agent makes can be seen or undone later. Nothing leaves the computer.`;
 export const DAILY_HABIT = `## Step 9: The daily habit (give the user this summary)
 
-- **Start of day:** \`/status\` to see everything, then \`go\` and pick a client, then \`/pickup <slug>\`.
+- **Start of day:** \`/biz-status\` to see everything, then \`go\` and pick a client, then \`/pickup <slug>\`.
 - **During the day:** paste anything worth remembering into that client's INBOX.md, or just tell the agent "note this".
 - **End of each session:** \`/wrap <slug>\`.
 - **New client:** \`/new-client <name>\`.
-- **Monday:** \`/status\`, then clear anything blocked.
+- **Monday:** \`/biz-status\`, then clear anything blocked.
 - **Saw something worth keeping:** \`/ingest <link, file or pasted text>\`.
-- **Friday or month end:** \`/review this week\` or \`/review October\` to see what actually got done.
+- **Friday or month end:** \`/biz-review this week\` or \`/biz-review October\` to see what actually got done.
 - **Once a month:** \`/lint\` to keep the wiki tidy and graduate repeated lessons.
 - **How did we get here?** \`/trace <idea or decision>\` for a dated timeline.
 - **When the agent gets something wrong:** agree the fix, then say "add that as a rule to CLAUDE.md".`;
@@ -375,11 +375,11 @@ export function dailyRoutine(): string {
     "```markdown",
     COMMANDS.wrap,
     "```",
-    "### .claude/commands/status.md",
+    "### .claude/commands/biz-status.md",
     "```markdown",
     COMMANDS.status,
     "```",
-    "### .claude/commands/review.md",
+    "### .claude/commands/biz-review.md",
     "```markdown",
     COMMANDS.review,
     "```",

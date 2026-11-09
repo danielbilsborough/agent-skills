@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "business-agent-os",
   "version": "0.1.0",
-  "description": "Set up a business operating system for Claude Code on a Mac, for business owners who are not developers: one folder of plain-text memory (a folder per client and project, notes, a daily log, a voice guide), /pickup, /wrap, /status and /new-client commands, local save points and an optional tmux session menu. One skill plus a read-only MCP server that returns the templates.",
+  "description": "Set up a business operating system for Claude Code on a Mac, for business owners who are not developers: one folder of plain-text memory (a folder per client and project, notes, a daily log, a voice guide), /pickup, /wrap, /biz-status and /new-client commands, local save points and an optional tmux session menu. One skill plus a read-only MCP server that returns the templates.",
   "author": {
     "name": "Daniel Bilsborough",
     "url": "https://partner.danielbilsborough.com"
