@@ -19,7 +19,7 @@ const name = z.string().min(1).max(80);
 
 export function buildServer(): McpServer {
   const server = new McpServer(
-    { name: SERVER_NAME, version: SERVER_VERSION, websiteUrl: LINKS.site },
+    { name: SERVER_NAME, version: SERVER_VERSION, websiteUrl: LINKS.docs },
     {
       instructions:
         "Templates for setting up a file-based business operating system for Claude Code: one business folder of plain Markdown " +
@@ -61,7 +61,7 @@ export function buildServer(): McpServer {
     {
       title: "Daily routine",
       description:
-        "How the memory works, the daily habit, the full text of the /pickup, /wrap, /status, /review, /trace, /ingest, /lint and /new-client command files, and how to use them with Codex or Grok.",
+        "How the memory works, the daily habit, the full text of the /pickup, /wrap, /biz-status, /biz-review, /trace, /ingest, /lint and /new-client command files, and how to use them with Codex or Grok.",
       inputSchema: {},
       annotations: { title: "Daily routine", ...READ_ONLY },
     },

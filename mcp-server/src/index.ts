@@ -49,13 +49,9 @@ export default {
       return withCors(await handleMcp(request));
     }
 
-    if (url.pathname === "/" && request.method === "GET") {
-      return new Response(
-        `Business Agent OS MCP server. Streamable HTTP endpoint: ${url.origin}/mcp\n` +
-          "Read-only. Tools: scaffold_business_os, house_rules, daily_routine, voice_guide_template.\n" +
-          `By Daniel Bilsborough: ${LINKS.site}\n`,
-        { headers: { "Content-Type": "text/plain; charset=utf-8", ...CORS } },
-      );
+    if (url.pathname === "/" && (request.method === "GET" || request.method === "HEAD")) {
+      // The human-readable page (setup, tools, privacy) lives on the website.
+      return new Response(null, { status: 302, headers: { Location: LINKS.docs, ...CORS } });
     }
     return new Response("Not found\n", { status: 404, headers: CORS });
   },

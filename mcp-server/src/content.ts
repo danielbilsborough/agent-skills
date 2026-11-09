@@ -5,6 +5,7 @@
 export const LINKS = {
   site: `https://partner.danielbilsborough.com`,
   repo: `https://github.com/danielbilsborough/agent-skills`,
+  docs: `https://partner.danielbilsborough.com/mcp`,
 } as const;
 
 const FOOTER = `\n\nBusiness Agent OS by Daniel Bilsborough: ${LINKS.site}`;
