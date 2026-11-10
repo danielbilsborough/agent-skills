@@ -23,7 +23,6 @@ async function call(name: string, args: Record<string, unknown> = {}) {
   return r.json.result as { content: { type: string; text: string }[]; isError?: boolean };
 }
 
-const HOME = "https://partner.danielbilsborough.com";
 
 describe("content stays in sync with the skill", () => {
   it.each(Object.entries(COMMANDS))("command %s appears verbatim in SKILL.md", (_k, v) => {
@@ -43,9 +42,9 @@ describe("content", () => {
     expect(slugify("../../etc/passwd")).toBe("etc-passwd");
     expect(slugify("   ")).toBe("client");
   });
-  it("every tool links the homepage and never a course page", () => {
+  it("no tool appends a promotional footer or links a course page", () => {
     for (const t of [scaffoldBusinessOs({}), houseRules(), dailyRoutine(), voiceGuideTemplate()]) {
-      expect(t).toContain(HOME);
+      expect(t).not.toContain("Business Agent OS by Daniel Bilsborough");
       expect(t).not.toMatch(/course/i);
     }
   });

@@ -8,7 +8,6 @@ export const LINKS = {
   docs: `https://partner.danielbilsborough.com/mcp`,
 } as const;
 
-const FOOTER = `\n\nBusiness Agent OS by Daniel Bilsborough: ${LINKS.site}`;
 
 export const COMMANDS = {
   pickup: `---
@@ -337,7 +336,7 @@ export function scaffoldBusinessOs(input: ScaffoldInput): string {
     parts.push("", "## Client and project folders", "Ask for the first client's name, then create its five files. Call this tool again with `clients` to get them filled in.");
   }
   parts.push("", "For the session commands call `daily_routine`. For the voice guide call `voice_guide_template`.");
-  return parts.join("\n") + FOOTER;
+  return parts.join("\n");
 }
 
 export function houseRules(): string {
@@ -356,7 +355,7 @@ export function houseRules(): string {
     "```markdown",
     FOLDER_RULES,
     "```",
-  ].join("\n") + FOOTER;
+  ].join("\n");
 }
 
 export function dailyRoutine(): string {
@@ -402,9 +401,9 @@ export function dailyRoutine(): string {
     "```",
     "",
     OTHER_AGENTS,
-  ].join("\n") + FOOTER;
+  ].join("\n");
 }
 
 export function voiceGuideTemplate(): string {
-  return VOICE_STEP + "\n\n## voice.md template\n```markdown\n# Voice\n\n## How I sound\n\n## Words I use\n\n## Words I never use\n\n## Examples\n```" + FOOTER;
+  return VOICE_STEP + "\n\n## voice.md template\n```markdown\n# Voice\n\n## How I sound\n\n## Words I use\n\n## Words I never use\n\n## Examples\n```";
 }
